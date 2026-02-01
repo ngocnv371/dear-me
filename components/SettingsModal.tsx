@@ -12,7 +12,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   onUpdate,
   onClose,
-}) => {
+}: SettingsModalProps) => {
   const handleChange = (key: keyof AISettings, value: string) => {
     onUpdate({ ...settings, [key]: value });
   };
@@ -127,10 +127,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {settings.provider === AIProvider.GEMINI && (
             <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 animate-in slide-in-from-top-2 duration-300">
-              <p className="text-xs text-blue-200/70 leading-relaxed">
-                Using <strong>gemini-3-flash-preview</strong>. Ideal for rapid
-                interactive narrative drafting.
-              </p>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase">
                   API Key
@@ -140,6 +136,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   placeholder="sk-..."
                   value={settings.geminiApiKey || ""}
                   onChange={(e) => handleChange("geminiApiKey", e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase">
+                  Model Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="gemini-3-flash-preview"
+                  value={settings.geminiModel || ""}
+                  onChange={(e) => handleChange("geminiModel", e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>

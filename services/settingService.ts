@@ -5,6 +5,7 @@ const SETTINGS_KEY = "dear_me_settings";
 const defaultSettings: AISettings = {
   provider: AIProvider.GEMINI,
   geminiApiKey: "",
+  geminiModel: "gemini-3-flash-preview",
   openaiApiKey: "",
   openaiModel: "gpt-4o-mini",
   openaiEndpoint: "",

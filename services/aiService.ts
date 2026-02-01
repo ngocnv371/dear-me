@@ -35,7 +35,7 @@ export const generateLetterPackage = async (
     const apiKey = settings.geminiApiKey || process.env.API_KEY || "";
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: settings.geminiModel || "gemini-3-flash-preview",
       contents: prompt,
       config: {
         temperature: 0.8,

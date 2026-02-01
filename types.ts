@@ -24,6 +24,7 @@ export enum AIProvider {
 export interface AISettings {
   provider: AIProvider;
   geminiApiKey: string;
+  geminiModel: string;
   openaiEndpoint: string;
   openaiApiKey: string;
   openaiModel: string;
