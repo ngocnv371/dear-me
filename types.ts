@@ -16,9 +16,21 @@ export interface Scenario {
   createdAt: number;
 }
 
-export interface Settings {
-  service: 'gemini' | 'openai';
-  geminiApiKey?: string;
-  openaiUrl?: string;
-  openaiKey?: string;
+export enum AIProvider {
+  GEMINI = 'GEMINI',
+  OPENAI = 'OPENAI'
+}
+
+export interface AISettings {
+  provider: AIProvider;
+  geminiApiKey: string;
+  openaiEndpoint: string;
+  openaiApiKey: string;
+  openaiModel: string;
+}
+
+export interface GeneratedResponse {
+  script: string;
+  tagline: string;
+  tags: string[];
 }

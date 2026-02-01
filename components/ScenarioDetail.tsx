@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Scenario } from '../types';
-import { generateLetterPackage, generateCoverPhoto, generateAudio } from '../services/geminiService';
+import { generateLetterPackage, generateCoverPhoto, generateAudio } from '../services/aiService';
 import { 
   ArrowLeft, Sparkles, Copy, RefreshCw, Trash2, 
   Mic, Play, Pause, Edit3, Hash, Quote
