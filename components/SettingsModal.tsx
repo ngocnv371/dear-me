@@ -79,18 +79,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 <Cpu size={24} />
                 <span className="text-sm font-bold">OpenAI</span>
               </button>
-              <button
-                type="button"
-                onClick={() => handleChange("provider", AIProvider.OLLAMA)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                  settings.provider === AIProvider.OLLAMA
-                    ? "border-blue-500 bg-blue-500/10 text-white"
-                    : "border-slate-700 bg-slate-900/50 text-slate-400 hover:border-slate-600"
-                }`}
-              >
-                <Globe size={24} />
-                <span className="text-sm font-bold">Local Ollama</span>
-              </button>
             </div>
           </div>
 
@@ -137,55 +125,24 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {settings.provider === AIProvider.OLLAMA && (
-            <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase">
-                  Endpoint URL
-                </label>
-                <input
-                  type="text"
-                  placeholder="http://localhost:11434"
-                  value={settings.ollamaEndpoint || ""}
-                  onChange={(e) =>
-                    handleChange("ollamaEndpoint", e.target.value)
-                  }
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase">
-                  Model Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="llama3, mistral, etc."
-                  value={settings.ollamaModel || ""}
-                  onChange={(e) => handleChange("ollamaModel", e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase">
-                  API Key (Optional)
-                </label>
-                <input
-                  type="password"
-                  placeholder="For proxies or secure endpoints"
-                  value={settings.ollamaApiKey || ""}
-                  onChange={(e) => handleChange("ollamaApiKey", e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-            </div>
-          )}
-
           {settings.provider === AIProvider.GEMINI && (
             <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 animate-in slide-in-from-top-2 duration-300">
               <p className="text-xs text-blue-200/70 leading-relaxed">
                 Using <strong>gemini-3-flash-preview</strong>. Ideal for rapid
                 interactive narrative drafting.
               </p>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase">
+                  API Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="sk-..."
+                  value={settings.geminiApiKey || ""}
+                  onChange={(e) => handleChange("geminiApiKey", e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
             </div>
           )}
         </div>
