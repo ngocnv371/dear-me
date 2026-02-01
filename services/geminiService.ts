@@ -4,14 +4,28 @@ import { Scenario } from "../types";
 
 /**
  * Letter package generation service.
- * Always use process.env.API_KEY directly for initializing the client.
+ * Always use process.env.API_KEY directly for initializing the client unless overridden in settings.
  * Create a new GoogleGenAI instance right before making an API call.
  */
+const getApiKey = (): string => {
+  const savedSettings = localStorage.getItem('dear_me_settings');
+  if (savedSettings) {
+    try {
+      const settings = JSON.parse(savedSettings);
+      if (settings.geminiApiKey) return settings.geminiApiKey;
+    } catch (e) {
+      console.error("Failed to parse settings for API key", e);
+    }
+  }
+  return process.env.API_KEY || '';
+};
+
 export const generateLetterPackage = async (scenario: Scenario): Promise<{ script: string, tagline: string, tags: string[] }> => {
   console.group('Generation: Letter Package');
   console.log('Scenario Data:', scenario);
   
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
   const prompt = `
     Write a dramatic letter script for a YouTube podcast channel called 'Dear Me'.
     The letter should start with "Dear ${scenario.target}".
@@ -61,12 +75,10 @@ export const generateLetterPackage = async (scenario: Scenario): Promise<{ scrip
   }
 };
 
-/**
- * Podcast cover photo generation service.
- */
 export const generateCoverPhoto = async (scenario: Scenario): Promise<string> => {
   console.group('Generation: Cover Photo');
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
   const prompt = `A cinematic, moody, artistic podcast cover art for a letter addressed to ${scenario.target}. 
     Theme: ${scenario.topic}. 
     Style: Dramatic lighting, minimalist but evocative, soft focus, professional photography. 
@@ -84,7 +96,6 @@ export const generateCoverPhoto = async (scenario: Scenario): Promise<string> =>
       }
     });
 
-    // Iterate through candidates and parts to find the image part.
     const parts = response.candidates?.[0]?.content?.parts || [];
     for (const part of parts) {
       if (part.inlineData) {
@@ -101,13 +112,11 @@ export const generateCoverPhoto = async (scenario: Scenario): Promise<string> =>
   }
 };
 
-/**
- * Text-to-speech audio synthesis service.
- */
 export const generateAudio = async (text: string, tone: string): Promise<string> => {
   console.group('Generation: Audio Synthesis');
   console.log('Text Length:', text.length);
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
   const prompt = `Read this letter script with a ${tone} tone, slow pace, and deep emotion: ${text}`;
   
   try {
