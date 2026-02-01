@@ -7,28 +7,28 @@ import ScenarioDetail from './components/ScenarioDetail';
 import Toast, { ToastType } from './components/Toast';
 import SettingsModal from './components/SettingsModal';
 import { Scenario } from './types';
-import { Plus, Ghost } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 const STORAGE_KEY = 'dear_me_scenarios';
 
 const App: React.FC = () => {
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
+  // Use lazy initialization to ensure data is loaded immediately on mount
+  const [scenarios, setScenarios] = useState<Scenario[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error("Failed to load scenarios from localStorage:", e);
+      return [];
+    }
+  });
+
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setScenarios(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse local storage", e);
-      }
-    }
-  }, []);
-
+  // Persistence effect: saves to localStorage whenever scenarios change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(scenarios));
   }, [scenarios]);
@@ -46,7 +46,7 @@ const App: React.FC = () => {
       topic: data.topic!,
       createdAt: Date.now(),
     };
-    setScenarios([newScenario, ...scenarios]);
+    setScenarios(prev => [newScenario, ...prev]);
     setShowForm(false);
     setActiveScenarioId(newScenario.id);
     showToast("Scenario created", "success");
