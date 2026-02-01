@@ -61,16 +61,40 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
   const handleGenerate = async () => {
     setIsGenerating(true);
     showToast("Starting generation... this may take a moment.", "info");
+    
     try {
-      const [{ script, tagline, tags }, cover] = await Promise.all([
-        generateLetterPackage(scenario),
-        generateCoverPhoto(scenario)
+      // We wrap the cover photo generation in a catch-all to make it optional.
+      // If it fails, we return undefined so the update doesn't clear an existing cover or crash the flow.
+      const packagePromise = generateLetterPackage(scenario);
+      const coverPromise = generateCoverPhoto(scenario).catch(err => {
+        console.warn('Cover generation failed (optional component):', err);
+        return undefined; 
+      });
+
+      const [packageResult, cover] = await Promise.all([
+        packagePromise,
+        coverPromise
       ]);
-      onUpdate(scenario.id, { script, tagline, tags, coverImageUrl: cover });
-      showToast("Episode generated successfully!", "success");
+
+      const { script, tagline, tags } = packageResult;
+      
+      const updates: Partial<Scenario> = { script, tagline, tags };
+      if (cover) {
+        updates.coverImageUrl = cover;
+      }
+      
+      onUpdate(scenario.id, updates);
+      
+      if (!cover && scenario.script) {
+        showToast("Script updated, but cover art failed to generate.", "info");
+      } else if (!cover) {
+        showToast("Script generated! (Cover art failed)", "success");
+      } else {
+        showToast("Episode generated successfully!", "success");
+      }
     } catch (err) {
       console.error('Generation Error:', err);
-      showToast("Failed to generate content. Please try again.", "error");
+      showToast("Failed to generate the script. Please check your API key and try again.", "error");
     } finally {
       setIsGenerating(false);
     }
