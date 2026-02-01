@@ -4,6 +4,9 @@
 
 ## ✨ Features
 
+![demo](docs/demo0.png)
+![demo](docs/demo1.png)
+
 - **Dramatic Scripting**: Uses Gemini 3 Pro to craft deeply emotional and evocative letters starting with "Dear...", tailored to specific relationships and tones.
 - **Cinematic Cover Art**: Generates professional, text-less podcast cover art using Gemini 2.5 Flash Image models.
 - **AI Voice Synthesis**: Synthesizes dramatic audio readings of generated scripts using Gemini 2.5 Flash TTS (Text-to-Speech).
