@@ -1,31 +1,48 @@
 
 import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { Scenario } from "../types";
+import { Scenario, Settings } from "../types";
 
-/**
- * Letter package generation service.
- * Always use process.env.API_KEY directly for initializing the client unless overridden in settings.
- * Create a new GoogleGenAI instance right before making an API call.
- */
-const getApiKey = (): string => {
-  const savedSettings = localStorage.getItem('dear_me_settings');
-  if (savedSettings) {
+const getSettings = (): Settings => {
+  const saved = localStorage.getItem('dear_me_settings');
+  if (saved) {
     try {
-      const settings = JSON.parse(savedSettings);
-      if (settings.geminiApiKey) return settings.geminiApiKey;
+      return JSON.parse(saved);
     } catch (e) {
-      console.error("Failed to parse settings for API key", e);
+      console.error("Failed to parse settings", e);
     }
   }
-  return process.env.API_KEY || '';
+  return { service: 'gemini', geminiApiKey: process.env.API_KEY };
+};
+
+const generateWithOpenAI = async (settings: Settings, prompt: string) => {
+  const url = settings.openaiUrl || 'https://api.openai.com/v1/chat/completions';
+  const response = await fetch(url.endsWith('/chat/completions') ? url : `${url}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${settings.openaiKey}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o', // or a reasonable default for the compatible provider
+      messages: [{ role: 'user', content: prompt + "\n\nReturn ONLY a JSON object with keys: script, tagline, tags (array)." }],
+      response_format: { type: "json_object" }
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`OpenAI API Error: ${error}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices[0].message.content;
+  return JSON.parse(content);
 };
 
 export const generateLetterPackage = async (scenario: Scenario): Promise<{ script: string, tagline: string, tags: string[] }> => {
   console.group('Generation: Letter Package');
-  console.log('Scenario Data:', scenario);
+  const settings = getSettings();
   
-  const apiKey = getApiKey();
-  const ai = new GoogleGenAI({ apiKey });
   const prompt = `
     Write a dramatic letter script for a YouTube podcast channel called 'Dear Me'.
     The letter should start with "Dear ${scenario.target}".
@@ -41,6 +58,16 @@ export const generateLetterPackage = async (scenario: Scenario): Promise<{ scrip
   `;
 
   try {
+    if (settings.service === 'openai' && settings.openaiKey) {
+      console.log('Routing via OpenAI Compatible Service');
+      const result = await generateWithOpenAI(settings, prompt);
+      console.groupEnd();
+      return result;
+    }
+
+    console.log('Routing via Gemini Service');
+    const apiKey = settings.geminiApiKey || process.env.API_KEY || '';
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: prompt,
@@ -59,9 +86,7 @@ export const generateLetterPackage = async (scenario: Scenario): Promise<{ scrip
       }
     });
     
-    // Access response.text property directly.
     const result = JSON.parse(response.text || '{}');
-    console.log('Package Generated Successfully');
     console.groupEnd();
     return {
       script: result.script || "Failed to generate script.",
@@ -77,8 +102,13 @@ export const generateLetterPackage = async (scenario: Scenario): Promise<{ scrip
 
 export const generateCoverPhoto = async (scenario: Scenario): Promise<string> => {
   console.group('Generation: Cover Photo');
-  const apiKey = getApiKey();
+  const settings = getSettings();
+  
+  // NOTE: Image generation is specialized for Gemini in this app. 
+  // If OpenAI is selected for text, we still use Gemini (or the stored Gemini Key) for visuals if available.
+  const apiKey = settings.geminiApiKey || process.env.API_KEY || '';
   const ai = new GoogleGenAI({ apiKey });
+  
   const prompt = `A cinematic, moody, artistic podcast cover art for a letter addressed to ${scenario.target}. 
     Theme: ${scenario.topic}. 
     Style: Dramatic lighting, minimalist but evocative, soft focus, professional photography. 
@@ -99,12 +129,11 @@ export const generateCoverPhoto = async (scenario: Scenario): Promise<string> =>
     const parts = response.candidates?.[0]?.content?.parts || [];
     for (const part of parts) {
       if (part.inlineData) {
-        console.log('Image Data Received');
         console.groupEnd();
         return `data:image/png;base64,${part.inlineData.data}`;
       }
     }
-    throw new Error("No image data received in response candidates");
+    throw new Error("No image data received");
   } catch (error) {
     console.error('Cover Photo Generation Failed:', error);
     console.groupEnd();
@@ -114,8 +143,8 @@ export const generateCoverPhoto = async (scenario: Scenario): Promise<string> =>
 
 export const generateAudio = async (text: string, tone: string): Promise<string> => {
   console.group('Generation: Audio Synthesis');
-  console.log('Text Length:', text.length);
-  const apiKey = getApiKey();
+  const settings = getSettings();
+  const apiKey = settings.geminiApiKey || process.env.API_KEY || '';
   const ai = new GoogleGenAI({ apiKey });
   const prompt = `Read this letter script with a ${tone} tone, slow pace, and deep emotion: ${text}`;
   
@@ -134,10 +163,7 @@ export const generateAudio = async (text: string, tone: string): Promise<string>
     });
 
     const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!base64Audio) {
-      throw new Error("Audio synthesis returned empty inlineData");
-    }
-    console.log('Audio Bytes Synthesized (Base64 length):', base64Audio.length);
+    if (!base64Audio) throw new Error("Audio synthesis returned empty");
     console.groupEnd();
     return base64Audio;
   } catch (error) {

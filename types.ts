@@ -17,6 +17,8 @@ export interface Scenario {
 }
 
 export interface Settings {
-  generativeService: 'gemini' | 'openai';
-  modelName: string;
+  service: 'gemini' | 'openai';
+  geminiApiKey?: string;
+  openaiUrl?: string;
+  openaiKey?: string;
 }
