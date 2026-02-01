@@ -1,13 +1,14 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Header from './components/Header';
 import ScenarioCard from './components/ScenarioCard';
 import ScenarioForm from './components/ScenarioForm';
 import ScenarioDetail from './components/ScenarioDetail';
 import Toast, { ToastType } from './components/Toast';
 import SettingsModal from './components/SettingsModal';
-import { Scenario } from './types';
+import { AISettings, Scenario } from './types';
 import { Plus } from 'lucide-react';
+import { loadSettings, saveSettings } from './services/settingService';
 
 const STORAGE_KEY = 'dear_me_scenarios';
 
@@ -22,6 +23,10 @@ const App: React.FC = () => {
       return [];
     }
   });
+  const savedSettings = useMemo(() => {
+    return loadSettings();
+  }, []);
+  const [settings, setAiSettings] = useState<AISettings>(savedSettings);
 
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -32,6 +37,11 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(scenarios));
   }, [scenarios]);
+
+  // Persist settings
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
 
   const showToast = useCallback((message: string, type: ToastType) => {
     setToast({ message, type });
@@ -134,7 +144,9 @@ const App: React.FC = () => {
 
       {showSettings && (
         <SettingsModal 
-          onClose={() => setShowSettings(false)}
+          settings={settings} 
+          onUpdate={setAiSettings} 
+          onClose={() => setShowSettings(false)} 
         />
       )}
 
