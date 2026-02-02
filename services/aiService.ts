@@ -1,7 +1,8 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { Scenario, AISettings, AIProvider } from "../types";
+import { Scenario, AISettings, AIProvider, VoiceProvider } from "../types";
 import { loadSettings } from "./settingService";
 import { callOpenAI } from "./openaiService";
+import { callKokoro } from "./kokoroService";
 
 export const generateLetterPackage = async (
   scenario: Scenario,
@@ -115,6 +116,23 @@ export const generateAudio = async (
 ): Promise<string> => {
   console.group("Generation: Audio Synthesis");
   const settings = loadSettings();
+
+  // Check voice provider setting
+  if (settings.voiceProvider === VoiceProvider.KOKORO && settings.kokoroEndpoint) {
+    console.log("Routing via Kokoro TTS Service");
+    try {
+      const base64Audio = await callKokoro(text, settings);
+      console.groupEnd();
+      return base64Audio;
+    } catch (error) {
+      console.error("Kokoro TTS Failed:", error);
+      console.groupEnd();
+      throw error;
+    }
+  }
+
+  // Default to Gemini TTS
+  console.log("Routing via Gemini TTS Service");
   const apiKey = settings.geminiApiKey || process.env.API_KEY || "";
   const ai = new GoogleGenAI({ apiKey });
   const prompt = `Read this letter script with a ${tone} tone, slow pace, and deep emotion: ${text}`;

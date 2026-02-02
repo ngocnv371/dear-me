@@ -21,6 +21,11 @@ export enum AIProvider {
   OPENAI = 'OPENAI'
 }
 
+export enum VoiceProvider {
+  GEMINI = 'GEMINI',
+  KOKORO = 'KOKORO'
+}
+
 export interface AISettings {
   provider: AIProvider;
   geminiApiKey: string;
@@ -28,6 +33,10 @@ export interface AISettings {
   openaiEndpoint: string;
   openaiApiKey: string;
   openaiModel: string;
+  voiceProvider: VoiceProvider;
+  kokoroEndpoint: string;
+  kokoroVoice: string;
+  kokoroSpeed: number;
 }
 
 export interface GeneratedResponse {

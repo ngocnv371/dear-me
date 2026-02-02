@@ -1,4 +1,4 @@
-import { AIProvider, AISettings } from "@/types";
+import { AIProvider, AISettings, VoiceProvider } from "@/types";
 
 const SETTINGS_KEY = "dear_me_settings";
 
@@ -9,6 +9,10 @@ const defaultSettings: AISettings = {
   openaiApiKey: "",
   openaiModel: "gpt-4o-mini",
   openaiEndpoint: "",
+  voiceProvider: VoiceProvider.GEMINI,
+  kokoroEndpoint: "",
+  kokoroVoice: "af_bella",
+  kokoroSpeed: 1.0,
 };
 
 export const loadSettings = (): AISettings => {
