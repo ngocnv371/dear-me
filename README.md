@@ -19,20 +19,54 @@
 
 - **Frontend**: React 19, Tailwind CSS.
 - **Icons**: Lucide React.
+- **Database**: Supabase (PostgreSQL with Row Level Security).
+- **Authentication**: Supabase Auth (Email/Password & OAuth).
 - **AI Engine**: Google Gemini API (`@google/genai`).
   - `gemini-3-pro-preview` for complex text reasoning and scripting.
   - `gemini-2.5-flash-image` for high-quality artistic generation.
   - `gemini-2.5-flash-preview-tts` for emotional audio synthesis.
 
-## 🛠️ Configuration
+## 🛠️ Setup & Configuration
 
-The application requires a Google Gemini API Key. In the development environment, ensure the `API_KEY` is provided via the environment variables.
+### Prerequisites
 
-```json
-{
-  "API_KEY": "your_gemini_api_key_here"
-}
-```
+- Node.js 18+ installed
+- A Supabase account ([supabase.com](https://supabase.com))
+- A Google Gemini API key
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <your-repo-url>
+   cd dear-me/web
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up Supabase:
+   - Follow the detailed guide in [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)
+   - Run the SQL migrations in your Supabase project
+   - Copy your Supabase URL and anon key
+
+4. Create environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+5. Edit `.env` with your credentials:
+   ```
+   VITE_SUPABASE_URL=your-supabase-project-url
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   ```
+
+6. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
 ## 📖 Usage
 
@@ -42,6 +76,10 @@ The application requires a Google Gemini API Key. In the development environment
 4. **Refine**: Use the "Edit Scenario" feature to tweak the input and regenerate if the emotional beats need adjustment.
 5. **Publish**: Copy the transcript and metadata directly into your YouTube studio.
 
-## 🛡️ Privacy
+## 🛡️ Privacy & Security
 
-All generated scripts and settings are saved to your browser's `localStorage`. No data is stored on a centralized server other than the prompts sent to the Gemini API for generation.
+- **User Authentication**: Secure authentication via Supabase Auth with email/password and OAuth providers.
+- **Row Level Security**: All user data is protected by PostgreSQL Row Level Security (RLS) policies.
+- **Data Isolation**: Users can only access their own scenarios and projects.
+- **No Server Storage**: AI prompts are sent to Gemini API but not stored by this application.
+- **Environment Variables**: Sensitive keys are stored in `.env` files (not committed to version control).

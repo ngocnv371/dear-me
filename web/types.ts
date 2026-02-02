@@ -2,7 +2,7 @@
 export type Relationship = 'beloved' | 'neutral' | 'hated' | 'professional' | 'polite' | 'estranged' | 'secret';
 export type Tone = 'humor' | 'dramatic' | 'dry' | 'melancholic' | 'angry' | 'hopeful';
 
-export interface Scenario {
+export interface Project {
   id: string;
   target: string;
   relationship: Relationship;

@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Relationship, Tone, Scenario } from '../types';
+import { Relationship, Tone, Project } from '../types';
 import { X, Save } from 'lucide-react';
 
-interface ScenarioFormProps {
-  onSave: (scenario: Partial<Scenario>) => void;
+interface ProjectFormProps {
+  onSave: (project: Partial<Project>) => void;
   onCancel: () => void;
-  initialData?: Scenario;
+  initialData?: Project;
 }
 
-const ScenarioForm: React.FC<ScenarioFormProps> = ({ onSave, onCancel, initialData }) => {
+const ProjectForm: React.FC<ProjectFormProps> = ({ onSave, onCancel, initialData }) => {
   const [target, setTarget] = useState(initialData?.target || '');
   const [relationship, setRelationship] = useState<Relationship>(initialData?.relationship || 'neutral');
   const [tone, setTone] = useState<Tone>(initialData?.tone || 'dramatic');
@@ -25,7 +25,7 @@ const ScenarioForm: React.FC<ScenarioFormProps> = ({ onSave, onCancel, initialDa
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
         <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-          <h2 className="text-xl font-bold">{initialData ? 'Edit Letter Scenario' : 'New Letter Scenario'}</h2>
+          <h2 className="text-xl font-bold">{initialData ? 'Edit Letter Project' : 'New Letter Project'}</h2>
           <button onClick={onCancel} className="p-1 hover:bg-slate-800 rounded-full text-slate-400">
             <X className="w-6 h-6" />
           </button>
@@ -102,7 +102,7 @@ const ScenarioForm: React.FC<ScenarioFormProps> = ({ onSave, onCancel, initialDa
               className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-xl font-bold transition-colors"
             >
               <Save className="w-5 h-5" />
-              {initialData ? 'Save Changes' : 'Save Scenario'}
+              {initialData ? 'Save Changes' : 'Save Project'}
             </button>
           </div>
         </form>
@@ -111,4 +111,4 @@ const ScenarioForm: React.FC<ScenarioFormProps> = ({ onSave, onCancel, initialDa
   );
 };
 
-export default ScenarioForm;
+export default ProjectForm;

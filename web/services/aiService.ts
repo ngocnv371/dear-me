@@ -1,21 +1,21 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { Scenario, AISettings, AIProvider, VoiceProvider } from "../types";
+import { Project, AISettings, AIProvider, VoiceProvider } from "../types";
 import { loadSettings } from "./settingService";
 import { callOpenAI } from "./openaiService";
 import { callKokoro } from "./kokoroService";
 
 export const generateLetterPackage = async (
-  scenario: Scenario,
+  project: Project,
 ): Promise<{ script: string; tagline: string; tags: string[] }> => {
   console.group("Generation: Letter Package");
   const settings = loadSettings();
 
   const prompt = `
     Write a dramatic letter script for a YouTube podcast channel called 'Dear Me'.
-    The letter should start with "Dear ${scenario.target}".
-    Relationship context: ${scenario.relationship}.
-    Tone: ${scenario.tone}.
-    Topic/Situation: ${scenario.topic}.
+    The letter should start with "Dear ${project.target}".
+    Relationship context: ${project.relationship}.
+    Tone: ${project.tone}.
+    Topic/Situation: ${project.topic}.
     
     Also provide:
     1. A catchy YouTube tagline for this episode.
@@ -68,7 +68,7 @@ export const generateLetterPackage = async (
 };
 
 export const generateCoverPhoto = async (
-  scenario: Scenario,
+  project: Project,
 ): Promise<string> => {
   console.group("Generation: Cover Photo");
   const settings = loadSettings();
@@ -78,10 +78,10 @@ export const generateCoverPhoto = async (
   const apiKey = settings.geminiApiKey || process.env.API_KEY || "";
   const ai = new GoogleGenAI({ apiKey });
 
-  const prompt = `A cinematic, moody, artistic podcast cover art for a letter addressed to ${scenario.target}. 
-    Theme: ${scenario.topic}. 
+  const prompt = `A cinematic, moody, artistic podcast cover art for a letter addressed to ${project.target}. 
+    Theme: ${project.topic}. 
     Style: Dramatic lighting, minimalist but evocative, soft focus, professional photography. 
-    Emotional tone: ${scenario.tone}. 
+    Emotional tone: ${project.tone}. 
     NO TEXT or letters on the image. High quality, 1K resolution.`;
 
   try {

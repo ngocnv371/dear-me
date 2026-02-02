@@ -1,18 +1,18 @@
 
 import React, { useState, useRef } from 'react';
-import { Scenario } from '../types';
+import { Project } from '../types';
 import { generateLetterPackage, generateCoverPhoto, generateAudio } from '../services/aiService';
 import { 
   ArrowLeft, Sparkles, Copy, RefreshCw, Trash2, 
   Mic, Play, Pause, Edit3, Hash, Quote
 } from 'lucide-react';
-import ScenarioForm from './ScenarioForm';
+import ProjectForm from './ProjectForm';
 import ConfirmModal from './ConfirmModal';
 
-interface ScenarioDetailProps {
-  scenario: Scenario;
+interface ProjectDetailProps {
+  project: Project;
   onBack: () => void;
-  onUpdate: (id: string, updates: Partial<Scenario>) => void;
+  onUpdate: (id: string, updates: Partial<Project>) => void;
   onDelete: (id: string) => void;
   showToast: (msg: string, type: 'success' | 'error' | 'info') => void;
 }
@@ -48,7 +48,7 @@ async function decodeAudioData(
   return buffer;
 }
 
-const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpdate, onDelete, showToast }) => {
+const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate, onDelete, showToast }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -65,8 +65,8 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
     try {
       // We wrap the cover photo generation in a catch-all to make it optional.
       // If it fails, we return undefined so the update doesn't clear an existing cover or crash the flow.
-      const packagePromise = generateLetterPackage(scenario);
-      const coverPromise = generateCoverPhoto(scenario).catch(err => {
+      const packagePromise = generateLetterPackage(project);
+      const coverPromise = generateCoverPhoto(project).catch(err => {
         console.warn('Cover generation failed (optional component):', err);
         return undefined; 
       });
@@ -78,14 +78,14 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
 
       const { script, tagline, tags } = packageResult;
       
-      const updates: Partial<Scenario> = { script, tagline, tags };
+      const updates: Partial<Project> = { script, tagline, tags };
       if (cover) {
         updates.coverImageUrl = cover;
       }
       
-      onUpdate(scenario.id, updates);
+      onUpdate(project.id, updates);
       
-      if (!cover && scenario.script) {
+      if (!cover && project.script) {
         showToast("Script updated, but cover art failed to generate.", "info");
       } else if (!cover) {
         showToast("Script generated! (Cover art failed)", "success");
@@ -101,12 +101,12 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
   };
 
   const handleGenerateAudio = async () => {
-    if (!scenario.script) return;
+    if (!project.script) return;
     setIsGeneratingAudio(true);
     showToast("Synthesizing audio reading...", "info");
     try {
-      const audioData = await generateAudio(scenario.script, scenario.tone);
-      onUpdate(scenario.id, { audioData });
+      const audioData = await generateAudio(project.script, project.tone);
+      onUpdate(project.id, { audioData });
       showToast("Audio reading is ready!", "success");
     } catch (err) {
       console.error('Audio Generation Error:', err);
@@ -117,7 +117,7 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
   };
 
   const playAudio = async () => {
-    if (!scenario.audioData) return;
+    if (!project.audioData) return;
     
     if (isPlaying) {
       sourceNodeRef.current?.stop();
@@ -136,7 +136,7 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
       }
 
       console.log('[Playback] Processing audio stream...');
-      const bytes = decode(scenario.audioData);
+      const bytes = decode(project.audioData);
       const buffer = await decodeAudioData(bytes, ctx, 24000, 1);
       
       const source = ctx.createBufferSource();
@@ -156,8 +156,8 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
   };
 
   const copyToClipboard = () => {
-    if (scenario.script) {
-      const fullText = `Title: ${scenario.tagline}\n\n${scenario.script}\n\nTags: ${scenario.tags?.join(', ')}`;
+    if (project.script) {
+      const fullText = `Title: ${project.tagline}\n\n${project.script}\n\nTags: ${project.tags?.join(', ')}`;
       navigator.clipboard.writeText(fullText).then(() => {
         showToast("Copied transcript to clipboard", "success");
       }).catch(() => {
@@ -181,7 +181,7 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
           className="flex items-center gap-2 text-indigo-400 hover:bg-indigo-500/10 px-4 py-2 rounded-xl transition-all font-bold"
         >
           <Edit3 className="w-4 h-4" />
-          Edit Scenario
+          Edit Project
         </button>
       </div>
 
@@ -189,8 +189,8 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
         <div className="md:col-span-4 space-y-6">
           <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl overflow-hidden shadow-2xl">
             <div className="aspect-square bg-slate-900 relative">
-              {scenario.coverImageUrl ? (
-                <img src={scenario.coverImageUrl} className="w-full h-full object-cover" alt="Cover Art" />
+              {project.coverImageUrl ? (
+                <img src={project.coverImageUrl} className="w-full h-full object-cover" alt="Cover Art" />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-slate-700 italic text-sm p-8 text-center">
                   Waiting for cover art...
@@ -205,17 +205,17 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
           </div>
 
           <div className="space-y-4 bg-slate-800/20 p-6 rounded-3xl border border-slate-800/50">
-            <h1 className="text-3xl font-bold tracking-tight">Dear {scenario.target}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Dear {project.target}</h1>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-[10px] font-bold uppercase tracking-widest text-indigo-400">
-                {scenario.relationship}
+                {project.relationship}
               </span>
               <span className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-[10px] font-bold uppercase tracking-widest text-amber-400">
-                {scenario.tone}
+                {project.tone}
               </span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed border-l-2 border-indigo-500/30 pl-4 italic">
-              {scenario.topic}
+              {project.topic}
             </p>
           </div>
 
@@ -224,27 +224,27 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
               disabled={isGenerating}
               onClick={handleGenerate}
               className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all ${
-                scenario.script 
+                project.script 
                 ? 'bg-slate-800 border border-indigo-500/50 hover:bg-slate-700 text-indigo-400' 
                 : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20'
               }`}
             >
               <Sparkles className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`} />
-              {scenario.script ? 'Regenerate Content' : 'Generate Full Episode'}
+              {project.script ? 'Regenerate Content' : 'Generate Full Episode'}
             </button>
             
-            {scenario.script && (
+            {project.script && (
               <button 
                 disabled={isGeneratingAudio}
-                onClick={scenario.audioData ? playAudio : handleGenerateAudio}
+                onClick={project.audioData ? playAudio : handleGenerateAudio}
                 className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all ${
-                  scenario.audioData 
+                  project.audioData 
                   ? 'bg-amber-600/20 border border-amber-600/50 text-amber-400 hover:bg-amber-600/30' 
                   : 'bg-emerald-600 hover:bg-emerald-500 text-white'
                 }`}
               >
-                {isGeneratingAudio ? <RefreshCw className="w-5 h-5 animate-spin" /> : scenario.audioData ? (isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />) : <Mic className="w-5 h-5" />}
-                {isGeneratingAudio ? 'Synthesizing...' : scenario.audioData ? (isPlaying ? 'Stop' : 'Listen') : 'Generate Audio Reading'}
+                {isGeneratingAudio ? <RefreshCw className="w-5 h-5 animate-spin" /> : project.audioData ? (isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />) : <Mic className="w-5 h-5" />}
+                {isGeneratingAudio ? 'Synthesizing...' : project.audioData ? (isPlaying ? 'Stop' : 'Listen') : 'Generate Audio Reading'}
               </button>
             )}
             
@@ -253,13 +253,13 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
               className="w-full flex items-center justify-center gap-2 px-6 py-3 text-red-500 hover:text-red-400 hover:bg-red-500/5 rounded-2xl transition-all text-sm font-semibold"
             >
               <Trash2 className="w-4 h-4" />
-              Delete Scenario
+              Delete Project
             </button>
           </div>
         </div>
 
         <div className="md:col-span-8 space-y-8">
-          {!scenario.script ? (
+          {!project.script ? (
             <div className="h-full min-h-[500px] border-2 border-dashed border-slate-800 rounded-[2.5rem] flex flex-col items-center justify-center p-10 text-center text-slate-500 bg-slate-900/20">
               <Sparkles className="w-16 h-16 mb-6 opacity-10" />
               <h3 className="text-xl font-bold text-slate-300 mb-2">Ready to script?</h3>
@@ -272,7 +272,7 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
                   <Quote className="w-5 h-5" />
                   <h4 className="text-xs font-bold uppercase tracking-widest">YouTube Tagline</h4>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-100">{scenario.tagline}</h2>
+                <h2 className="text-2xl font-bold text-slate-100">{project.tagline}</h2>
                 
                 <div className="pt-6 border-t border-slate-800/50">
                   <div className="flex items-center gap-2 text-indigo-400 mb-4">
@@ -280,7 +280,7 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
                     <h4 className="text-xs font-bold uppercase tracking-widest">Recommended Tags</h4>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {scenario.tags?.map((tag, i) => (
+                    {project.tags?.map((tag, i) => (
                       <span key={i} className="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-400">
                         {tag}
                       </span>
@@ -306,7 +306,7 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
                 </div>
 
                 <div className="serif text-xl md:text-2xl leading-[1.8] text-slate-200 whitespace-pre-wrap selection:bg-indigo-500/30 first-letter:text-5xl first-letter:font-bold first-letter:mr-3 first-letter:float-left first-letter:text-indigo-500">
-                  {scenario.script}
+                  {project.script}
                 </div>
               </div>
             </>
@@ -315,12 +315,12 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
       </div>
 
       {isEditing && (
-        <ScenarioForm 
-          initialData={scenario}
+        <ProjectForm 
+          initialData={project}
           onSave={(data) => {
-            onUpdate(scenario.id, data);
+            onUpdate(project.id, data);
             setIsEditing(false);
-            showToast("Scenario updated", "success");
+            showToast("Project updated", "success");
           }}
           onCancel={() => setIsEditing(false)}
         />
@@ -329,10 +329,10 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
       {showDeleteConfirm && (
         <ConfirmModal 
           title="Delete Script?"
-          message={`Are you sure you want to delete the script for "Dear ${scenario.target}"? This action cannot be undone.`}
+          message={`Are you sure you want to delete the script for "Dear ${project.target}"? This action cannot be undone.`}
           confirmLabel="Delete Forever"
           onConfirm={() => {
-            onDelete(scenario.id);
+            onDelete(project.id);
             setShowDeleteConfirm(false);
             showToast("Script deleted", "info");
           }}
@@ -343,4 +343,4 @@ const ScenarioDetail: React.FC<ScenarioDetailProps> = ({ scenario, onBack, onUpd
   );
 };
 
-export default ScenarioDetail;
+export default ProjectDetail;

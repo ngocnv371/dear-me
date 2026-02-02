@@ -1,15 +1,15 @@
 
 import React from 'react';
-import { Scenario } from '../types';
+import { Project } from '../types';
 import { Calendar, MessageSquare, Image as ImageIcon, ChevronRight } from 'lucide-react';
 
-interface ScenarioCardProps {
-  scenario: Scenario;
+interface ProjectCardProps {
+  project: Project;
   onClick: () => void;
 }
 
-const ScenarioCard: React.FC<ScenarioCardProps> = ({ scenario, onClick }) => {
-  const dateStr = new Date(scenario.createdAt).toLocaleDateString();
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
+  const dateStr = new Date(project.createdAt).toLocaleDateString();
   
   return (
     <div 
@@ -17,10 +17,10 @@ const ScenarioCard: React.FC<ScenarioCardProps> = ({ scenario, onClick }) => {
       className="group bg-slate-800/40 border border-slate-700/50 rounded-2xl overflow-hidden hover:border-indigo-500/50 hover:bg-slate-800/60 transition-all cursor-pointer flex flex-col h-full"
     >
       <div className="aspect-square relative overflow-hidden bg-slate-900">
-        {scenario.coverImageUrl ? (
+        {project.coverImageUrl ? (
           <img 
-            src={scenario.coverImageUrl} 
-            alt={`Cover for ${scenario.target}`} 
+            src={project.coverImageUrl} 
+            alt={`Cover for ${project.target}`} 
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
@@ -31,9 +31,9 @@ const ScenarioCard: React.FC<ScenarioCardProps> = ({ scenario, onClick }) => {
         )}
         <div className="absolute top-3 right-3">
           <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-            scenario.script ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
+            project.script ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
           }`}>
-            {scenario.script ? 'Complete' : 'Draft'}
+            {project.script ? 'Complete' : 'Draft'}
           </span>
         </div>
       </div>
@@ -41,13 +41,13 @@ const ScenarioCard: React.FC<ScenarioCardProps> = ({ scenario, onClick }) => {
       <div className="p-5 flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-bold text-slate-100 group-hover:text-indigo-400 transition-colors">
-            Dear {scenario.target}
+            Dear {project.target}
           </h3>
           <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 transform translate-x-0 group-hover:translate-x-1 transition-all" />
         </div>
         
         <p className="text-slate-400 text-sm line-clamp-2 mb-4 italic">
-          "{scenario.topic}"
+          "{project.topic}"
         </p>
         
         <div className="mt-auto pt-4 border-t border-slate-700/50 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -57,8 +57,8 @@ const ScenarioCard: React.FC<ScenarioCardProps> = ({ scenario, onClick }) => {
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <MessageSquare className={`w-3 h-3 ${scenario.script ? 'text-indigo-400' : ''}`} />
-              {scenario.script ? 'Script' : 'None'}
+              <MessageSquare className={`w-3 h-3 ${project.script ? 'text-indigo-400' : ''}`} />
+              {project.script ? 'Script' : 'None'}
             </span>
           </div>
         </div>
@@ -67,4 +67,4 @@ const ScenarioCard: React.FC<ScenarioCardProps> = ({ scenario, onClick }) => {
   );
 };
 
-export default ScenarioCard;
+export default ProjectCard;
