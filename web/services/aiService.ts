@@ -12,10 +12,9 @@ export const generateLetterPackage = async (
 
   const prompt = `
     Write a dramatic letter script for a YouTube podcast channel called 'Dear Me'.
-    The letter should start with "Dear ${project.target}".
-    Relationship context: ${project.relationship}.
+    The letter should start with "Dear ${project.title}".
     Tone: ${project.tone}.
-    Topic/Situation: ${project.title}.
+    Theme: ${project.theme}.
     
     Also provide:
     1. A catchy YouTube tagline for this episode.
@@ -78,8 +77,8 @@ export const generateCoverPhoto = async (
   const apiKey = settings.geminiApiKey || process.env.API_KEY || "";
   const ai = new GoogleGenAI({ apiKey });
 
-  const prompt = `A cinematic, moody, artistic podcast cover art for a letter addressed to ${project.target}. 
-    Theme: ${project.title}. 
+  const prompt = `A cinematic, moody, artistic podcast cover art for a letter addressed to ${project.title}. 
+    Theme: ${project.theme}. 
     Style: Dramatic lighting, minimalist but evocative, soft focus, professional photography. 
     Emotional tone: ${project.tone}. 
     NO TEXT or letters on the image. High quality, 1K resolution.`;
