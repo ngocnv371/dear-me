@@ -1,47 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 import { Project } from '../types';
 
-export interface DatabaseScenario {
-  id: string;
-  profile_id: number;
-  title: string;
-  tags?: string[];
-  tone?: string;
-  theme?: string;
-  summary?: string;
-  transcript?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-// Map database project to Project
-const mapDatabaseToProject = (dbProject: DatabaseScenario, target?: string, relationship?: string): Project => {
-  return {
-    id: dbProject.id,
-    target: target || 'Unknown',
-    relationship: (relationship as any) || 'neutral',
-    tone: (dbProject.tone as any) || 'dramatic',
-    topic: dbProject.theme || '',
-    script: dbProject.transcript,
-    tagline: dbProject.summary,
-    tags: dbProject.tags,
-    createdAt: new Date(dbProject.created_at).getTime(),
-  };
-};
-
-// Map Project to database project
-const mapProjectToDatabase = (project: Project, profileId: number): Partial<DatabaseScenario> => {
-  return {
-    title: project.target,
-    tone: project.tone,
-    theme: project.topic,
-    summary: project.tagline,
-    transcript: project.script,
-    tags: project.tags,
-    profile_id: profileId,
-  };
-};
-
 export const projectService = {
   // Get current user's profile ID
   async getProfileId(): Promise<number | null> {
@@ -78,7 +37,7 @@ export const projectService = {
       throw error;
     }
 
-    return (data || []).map(dbProject => mapDatabaseToProject(dbProject as DatabaseScenario));
+    return (data || []).map(dbProject => dbProject as Project);
   },
 
   // Create a new project
@@ -88,7 +47,7 @@ export const projectService = {
       throw new Error('User not authenticated or profile not found');
     }
 
-    const projectData = mapProjectToDatabase(project as Project, profileId);
+    const projectData = project as Project
 
     const { data, error } = await supabase
       .from('projects')
@@ -101,7 +60,7 @@ export const projectService = {
       throw error;
     }
 
-    return mapDatabaseToProject(data as DatabaseScenario, project.target, project.relationship);
+    return data as Project;
   },
 
   // Update a project
@@ -111,9 +70,8 @@ export const projectService = {
       throw new Error('User not authenticated or profile not found');
     }
 
-    const projectData = mapProjectToDatabase({ id, ...updates } as Project, profileId);
+    const projectData = { id, ...updates } as Project;
     // Remove profile_id from updates since we're not changing it
-    delete projectData.profile_id;
 
     const { error } = await supabase
       .from('projects')
