@@ -48,7 +48,7 @@ async function decodeAudioData(
   return buffer;
 }
 
-const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate, onDelete, showToast }) => {
+const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate, onDelete, showToast }: ProjectDetailProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -76,17 +76,17 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate
         coverPromise
       ]);
 
-      const { script, tagline, tags } = packageResult;
+      const { script: transcript, tagline: summary, tags } = packageResult;
       
-      const updates: Partial<Project> = { script, tagline, tags };
+      const updates: Partial<Project> = { transcript, summary, tags };
       if (cover) {
         updates.coverImageUrl = cover;
       }
       
       onUpdate(project.id, updates);
       
-      if (!cover && project.script) {
-        showToast("Script updated, but cover art failed to generate.", "info");
+      if (!cover && project.transcript) {
+        showToast("Transcript updated, but cover art failed to generate.", "info");
       } else if (!cover) {
         showToast("Script generated! (Cover art failed)", "success");
       } else {
@@ -101,11 +101,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate
   };
 
   const handleGenerateAudio = async () => {
-    if (!project.script) return;
+    if (!project.transcript) return;
     setIsGeneratingAudio(true);
     showToast("Synthesizing audio reading...", "info");
     try {
-      const audioData = await generateAudio(project.script, project.tone);
+      const audioData = await generateAudio(project.transcript, project.tone);
       onUpdate(project.id, { audioData });
       showToast("Audio reading is ready!", "success");
     } catch (err) {
@@ -156,8 +156,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate
   };
 
   const copyToClipboard = () => {
-    if (project.script) {
-      const fullText = `Title: ${project.tagline}\n\n${project.script}\n\nTags: ${project.tags?.join(', ')}`;
+    if (project.transcript) {
+      const fullText = `Title: ${project.summary}\n\n${project.transcript}\n\nTags: ${project.tags?.join(', ')}`;
       navigator.clipboard.writeText(fullText).then(() => {
         showToast("Copied transcript to clipboard", "success");
       }).catch(() => {
@@ -205,17 +205,14 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate
           </div>
 
           <div className="space-y-4 bg-slate-800/20 p-6 rounded-3xl border border-slate-800/50">
-            <h1 className="text-3xl font-bold tracking-tight">Dear {project.target}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Dear {project.title}</h1>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-[10px] font-bold uppercase tracking-widest text-indigo-400">
-                {project.relationship}
-              </span>
               <span className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-[10px] font-bold uppercase tracking-widest text-amber-400">
                 {project.tone}
               </span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed border-l-2 border-indigo-500/30 pl-4 italic">
-              {project.topic}
+              {project.theme}
             </p>
           </div>
 
@@ -224,16 +221,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate
               disabled={isGenerating}
               onClick={handleGenerate}
               className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all ${
-                project.script 
+                project.transcript 
                 ? 'bg-slate-800 border border-indigo-500/50 hover:bg-slate-700 text-indigo-400' 
                 : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20'
               }`}
             >
               <Sparkles className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`} />
-              {project.script ? 'Regenerate Content' : 'Generate Full Episode'}
+              {project.transcript ? 'Regenerate Content' : 'Generate Full Episode'}
             </button>
             
-            {project.script && (
+            {project.transcript && (
               <button 
                 disabled={isGeneratingAudio}
                 onClick={project.audioData ? playAudio : handleGenerateAudio}
@@ -259,7 +256,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate
         </div>
 
         <div className="md:col-span-8 space-y-8">
-          {!project.script ? (
+          {!project.transcript ? (
             <div className="h-full min-h-[500px] border-2 border-dashed border-slate-800 rounded-[2.5rem] flex flex-col items-center justify-center p-10 text-center text-slate-500 bg-slate-900/20">
               <Sparkles className="w-16 h-16 mb-6 opacity-10" />
               <h3 className="text-xl font-bold text-slate-300 mb-2">Ready to script?</h3>
@@ -272,7 +269,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate
                   <Quote className="w-5 h-5" />
                   <h4 className="text-xs font-bold uppercase tracking-widest">YouTube Tagline</h4>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-100">{project.tagline}</h2>
+                <h2 className="text-2xl font-bold text-slate-100">{project.summary}</h2>
                 
                 <div className="pt-6 border-t border-slate-800/50">
                   <div className="flex items-center gap-2 text-indigo-400 mb-4">
@@ -306,7 +303,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate
                 </div>
 
                 <div className="serif text-xl md:text-2xl leading-[1.8] text-slate-200 whitespace-pre-wrap selection:bg-indigo-500/30 first-letter:text-5xl first-letter:font-bold first-letter:mr-3 first-letter:float-left first-letter:text-indigo-500">
-                  {project.script}
+                  {project.transcript}
                 </div>
               </div>
             </>
@@ -329,7 +326,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onBack, onUpdate
       {showDeleteConfirm && (
         <ConfirmModal 
           title="Delete Script?"
-          message={`Are you sure you want to delete the script for "Dear ${project.target}"? This action cannot be undone.`}
+          message={`Are you sure you want to delete the script for "Dear ${project.title}"? This action cannot be undone.`}
           confirmLabel="Delete Forever"
           onConfirm={() => {
             onDelete(project.id);

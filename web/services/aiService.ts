@@ -15,7 +15,7 @@ export const generateLetterPackage = async (
     The letter should start with "Dear ${project.target}".
     Relationship context: ${project.relationship}.
     Tone: ${project.tone}.
-    Topic/Situation: ${project.topic}.
+    Topic/Situation: ${project.title}.
     
     Also provide:
     1. A catchy YouTube tagline for this episode.
@@ -79,7 +79,7 @@ export const generateCoverPhoto = async (
   const ai = new GoogleGenAI({ apiKey });
 
   const prompt = `A cinematic, moody, artistic podcast cover art for a letter addressed to ${project.target}. 
-    Theme: ${project.topic}. 
+    Theme: ${project.title}. 
     Style: Dramatic lighting, minimalist but evocative, soft focus, professional photography. 
     Emotional tone: ${project.tone}. 
     NO TEXT or letters on the image. High quality, 1K resolution.`;

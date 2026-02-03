@@ -4,12 +4,11 @@ export type Tone = 'humor' | 'dramatic' | 'dry' | 'melancholic' | 'angry' | 'hop
 
 export interface Project {
   id: string;
-  target: string;
-  relationship: Relationship;
   tone: Tone;
-  topic: string;
-  script?: string;
-  tagline?: string;
+  title: string;
+  transcript?: string;
+  summary?: string;
+  theme?: string;
   tags?: string[];
   coverImageUrl?: string;
   audioData?: string; // base64 pcm

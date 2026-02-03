@@ -9,23 +9,23 @@ interface ProjectFormProps {
   initialData?: Project;
 }
 
-const ProjectForm: React.FC<ProjectFormProps> = ({ onSave, onCancel, initialData }) => {
-  const [target, setTarget] = useState(initialData?.target || '');
-  const [relationship, setRelationship] = useState<Relationship>(initialData?.relationship || 'neutral');
+const ProjectForm: React.FC<ProjectFormProps> = ({ onSave, onCancel, initialData }: ProjectFormProps) => {
+  const [title, setTitle] = useState(initialData?.title || '');
   const [tone, setTone] = useState<Tone>(initialData?.tone || 'dramatic');
-  const [topic, setTopic] = useState(initialData?.topic || '');
+  const [theme, setTheme] = useState(initialData?.theme || '');
+  const [transcript, setTranscript] = useState(initialData?.transcript || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!target || !topic) return;
-    onSave({ target, relationship, tone, topic });
+    if (!title) return;
+    onSave({ title, tone, theme, transcript });
   };
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
         <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-          <h2 className="text-xl font-bold">{initialData ? 'Edit Letter Project' : 'New Letter Project'}</h2>
+          <h2 className="text-xl font-bold">{initialData ? 'Edit Project' : 'New Project'}</h2>
           <button onClick={onCancel} className="p-1 hover:bg-slate-800 rounded-full text-slate-400">
             <X className="w-6 h-6" />
           </button>
@@ -33,33 +33,17 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onSave, onCancel, initialData
         
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">Recipient (Target)</label>
+            <label className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">Title</label>
             <input 
               required
               placeholder="e.g. My estranged father, My high school sweetheart..."
               className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">Relationship</label>
-              <select 
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                value={relationship}
-                onChange={(e) => setRelationship(e.target.value as Relationship)}
-              >
-                <option value="beloved">Beloved</option>
-                <option value="neutral">Neutral</option>
-                <option value="hated">Hated</option>
-                <option value="professional">Professional</option>
-                <option value="polite">Polite</option>
-                <option value="estranged">Estranged</option>
-                <option value="secret">Secret</option>
-              </select>
-            </div>
             <div>
               <label className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">Tone</label>
               <select 
@@ -84,8 +68,19 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onSave, onCancel, initialData
               rows={3}
               placeholder="Describe the situation or specific topic of the letter..."
               className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">Transcript</label>
+            <textarea 
+              required
+              rows={6}
+              placeholder="Write or paste the transcript of the letter here..."
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={transcript}
+              onChange={(e) => setTranscript(e.target.value)}
             />
           </div>
           
